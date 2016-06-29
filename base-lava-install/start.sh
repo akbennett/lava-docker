@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 postgres-ready () {
   echo "Waiting for lavaserver database to be active"
