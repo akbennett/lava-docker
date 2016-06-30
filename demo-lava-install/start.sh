@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 postgres-ready () {
   echo "Waiting for lavaserver database to be active"
@@ -13,7 +13,7 @@ postgres-ready () {
 
 start () {
   echo "Starting $1"
-  if (( $(ps -ef | grep -v grep | grep $1 | wc -l) > 0 ))
+  if (( $(ps -ef | grep -v grep | grep -v add_device | grep $1 | wc -l) > 0 ))
   then
     echo "$1 appears to be running"
   else

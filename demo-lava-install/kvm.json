@@ -1,0 +1,30 @@
+{
+    "actions": [
+        {
+            "command": "deploy_linaro_image",
+            "parameters": {
+                "image": "http://images.validation.linaro.org/kvm-debian-wheezy.img.gz"
+            }
+        },
+        {
+            "command": "lava_test_shell",
+            "parameters": {
+                "testdef_repos": [
+                    {
+                        "git-repo": "git://git.linaro.org/qa/test-definitions.git",
+                        "testdef": "ubuntu/smoke-tests-basic.yaml"
+                    },
+                    {
+                        "git-repo": "git://git.linaro.org/people/neilwilliams/multinode-yaml.git",
+                        "testdef": "singlenode03.yaml"
+                    }
+                ],
+                "timeout": 900
+            }
+        }
+    ],
+    "job_name": "kvm-sample-job",
+    "logging_level": "INFO",
+    "target": "kvm01",
+    "timeout": 900
+}
