@@ -1,0 +1,18 @@
+{
+    "actions": [
+        {
+            "command": "deploy_linaro_image",
+            "parameters": {
+                "image": "http://images.validation.linaro.org/kvm-debian-wheezy.img.gz"
+            }
+        },
+        {
+            "command": "boot_linaro_image"
+        }
+    ],
+    "job_name": "kvm-sample-job boot-only",
+    "logging_level": "INFO",
+    "target": "kvm01",
+    "timeout": 900
+}
+

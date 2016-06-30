@@ -18,12 +18,21 @@ ADD start.sh .
 ADD stop.sh . 
 
 RUN apt-get -y install expect
-ADD createsuperuser.sh .
-RUN /start.sh && /createsuperuser.sh && /stop.sh 
+ADD createsuperuser.sh /tools/
+RUN /start.sh && /tools/createsuperuser.sh && /stop.sh 
 
-ADD add-kvm-to-lava.sh .
-RUN /start.sh && /add-kvm-to-lava.sh && /stop.sh
+ADD add-kvm-to-lava.sh /tools/
+RUN /start.sh && /tools/add-kvm-to-lava.sh && /stop.sh
 RUN /start.sh && /usr/share/lava-server/add_device.py kvm kvm01 && /stop.sh
-RUN echo "root_part=1" >> /etc/lava-dispatcher/devices/kvm02.conf
+RUN echo "root_part=1" >> /etc/lava-dispatcher/devices/kvm01.conf
 
-ADD kvm.json .
+# Add some basic tools and run a job on the server
+ADD kvm-basic.json /tools/
+
+ADD getAPItoken.sh /tools/
+RUN /start.sh && /tools/getAPItoken.sh && /stop.sh
+
+ADD submit.py /tools/
+ADD submittestjob.sh .
+# To use this container, run /start.sh
+# To add a test job, run /submittestjob.sh
