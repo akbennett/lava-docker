@@ -8,15 +8,12 @@
             }
         },
         {
-<<<<<<< HEAD
-=======
             "command": "boot_linaro_image",
             "parameters": {
                 "test_image_prompt": "linaro-test"
             }
         },
         {
->>>>>>> fbbe2a09eef7539a638fe29af07bdcce64f1dcda
             "command": "lava_test_shell",
             "parameters": {
                 "testdef_repos": [
