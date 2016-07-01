@@ -1,0 +1,33 @@
+{
+    "actions": [
+        {
+            "command": "deploy_linaro_kernel",
+            "parameters": {
+                "kernel": "http://images.validation.linaro.org/functional-test-images/qemu-aarch64/qemu-aarch64-kernel-image",
+                "rootfs": "http://images.validation.linaro.org/functional-test-images/qemu-aarch64/vexpress64-openembedded_minimal-armv8-gcc-4.9_20140823-686.img.gz"
+            }
+        },
+        {
+            "command": "boot_linaro_image",
+            "parameters": {
+                "test_image_prompt": "linaro-test"
+            }
+        },
+        {
+            "command": "lava_test_shell",
+            "parameters": {
+                "testdef_repos": [
+                    {
+                        "git-repo": "http://git.linaro.org/lava-team/lava-functional-tests.git",
+                        "testdef": "lava-test-shell/single-node/singlenode01.yaml"
+                    }
+                ],
+                "timeout": 900
+            }
+        }
+    ],
+    "device_type": "qemu-aarch64",
+    "job_name": "qemu-aarch64-kernel-boot",
+    "logging_level": "DEBUG",
+    "timeout": 18000
+}

@@ -23,7 +23,8 @@ RUN /start.sh && /tools/createsuperuser.sh && /stop.sh
 
 ADD add-kvm-to-lava.sh /tools/
 RUN /start.sh && /tools/add-kvm-to-lava.sh && /stop.sh
-RUN /start.sh && /usr/share/lava-server/add_device.py kvm kvm01 && /stop.sh
+RUN /start.sh && /usr/share/lava-server/add_device.py kvm kvm01 && \
+                 /usr/share/lava-server/add_device.py qemu-aarch64 qemu-aarch64-01 && /stop.sh
 RUN echo "root_part=1" >> /etc/lava-dispatcher/devices/kvm01.conf
 
 # Add some basic tools and run a job on the server
