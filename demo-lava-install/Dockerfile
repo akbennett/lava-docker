@@ -38,3 +38,5 @@ ADD submit.py /tools/
 ADD submittestjob.sh .
 # To use this container, run /start.sh
 # To add a test job, run /submittestjob.sh
+
+CMD ["/bin/bash", "/start.sh"]
