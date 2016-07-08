@@ -13,7 +13,7 @@ postgres-ready () {
 
 start () {
   echo "Starting $1"
-  if (( $(ps -ef | grep -v grep | grep -v add_device | grep $1 | wc -l) > 0 ))
+  if (( $(ps -ef | grep -v grep | grep -v add_device | grep -v dispatcher-config | grep $1 | wc -l) > 0 ))
   then
     echo "$1 appears to be running"
   else
@@ -24,5 +24,8 @@ start () {
 start postgresql
 start apache2
 start lava-server
+start lava-master
+start lava-slave
 
 postgres-ready
+service apache2 reload #added after the website not running a few times on boot
