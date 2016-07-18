@@ -51,3 +51,15 @@ csrf="csrfmiddlewaretoken="$(cat cookies.txt | grep csrftoken | cut -d$'\t' -f 7
 createdevice=$csrf\&hostname=$devicename\&device_type=$devicetype\&device_version=1\&status=1\&health_status=0\&is_pipeline="on"\&worker_host=$hostn
 curl -b cookies.txt -c cookies.txt -d $createdevice -X POST $lavaurl/admin/lava_scheduler_app/device/add/
 
+devicename=qemu-cortex-m3-01
+devicetype=qemu-cortex-m3
+# add device type
+csrf="csrfmiddlewaretoken="$(cat cookies.txt | grep csrftoken | cut -d$'\t' -f 7); echo $csrf
+createdevicetype=$csrf\&name=$devicetype\&display=on\&health_frequency=24\&_save=Save\&health_denominator=0
+curl -b cookies.txt -c cookies.txt -d $createdevicetype -X POST $lavaurl/admin/lava_scheduler_app/devicetype/add/
+
+## Add device
+csrf="csrfmiddlewaretoken="$(cat cookies.txt | grep csrftoken | cut -d$'\t' -f 7); echo $csrf
+createdevice=$csrf\&hostname=$devicename\&device_type=$devicetype\&device_version=1\&status=1\&health_status=0\&is_pipeline="on"\&worker_host=$hostn
+curl -b cookies.txt -c cookies.txt -d $createdevice -X POST $lavaurl/admin/lava_scheduler_app/device/add/
+

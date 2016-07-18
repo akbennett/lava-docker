@@ -1,0 +1,25 @@
+From b3459846d25b9b9d01cd8770249749c0befe76fa Mon Sep 17 00:00:00 2001
+From: Tyler Baker <tyler.baker@linaro.org>
+Date: Thu, 23 Jun 2016 15:45:31 -0700
+Subject: [PATCH] hack to allow monitor test jobs
+
+Change-Id: Iaba9d218439cd1e45f0f3e0ccdac9e576ecfe60c
+---
+ lava_results_app/models.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lava_results_app/models.py b/lava_results_app/models.py
+index 92dbbb3..55fd2de 100644
+--- a/lava_results_app/models.py
++++ b/lava_results_app/models.py
+@@ -520,7 +520,7 @@ class MetaType(models.Model):
+     section_names = {
+         DEPLOY_TYPE: 'to',
+         BOOT_TYPE: 'method',
+-        TEST_TYPE: 'definitions',
++        TEST_TYPE: 'monitor',
+     }
+ 
+     name = models.CharField(max_length=256)
+-- 
+2.1.4

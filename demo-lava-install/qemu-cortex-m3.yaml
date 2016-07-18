@@ -1,0 +1,34 @@
+# Zephyr JOB definition for QEMU
+device_type: qemu-cortex-m3
+job_name: qemu-cortex-m3-zephyr-semaphore-test
+
+timeouts:
+  job:
+    minutes: 6
+  action:
+    minutes: 2
+priority: medium
+visibility: public
+
+actions:
+- deploy:
+    timeout:
+      minutes: 3
+    to: tmpfs
+    type: monitor
+    images: 
+        kernel: 
+          image_arg: -kernel {kernel}
+          url: http://snapshots.linaro.org/components/kernel/zephyr/zephyr/qemu_cortex_m3/latest/tests/kernel/test_sema/microkernel/test/zephyr.bin
+
+- boot:
+    method: monitor
+    timeout:
+      minutes: 2
+
+- test:
+    monitor:
+      name: Semaphore Kernel Test
+      start: Starting semaphore tests
+      end: PROJECT EXECUTION SUCCESSFUL
+      pattern: (?P<result>(PASS|FAIL))\s-\s(?P<test_case_id>\w+)
