@@ -60,11 +60,11 @@ RUN /start.sh && \
     echo "cd \${DIR} && dpkg -i *.deb" >> /usr/share/lava-server/debian-dev-build.sh && \
     echo "adding patches for dispatcher" && \
     cd / && git clone https://github.com/linaro/lava-dispatcher && cd /lava-dispatcher && git checkout master && \
-    cd /lava-dispatcher && git checkout e545969affcc449d833b2fcd3b8efe2d966f72a3 && \
+    #cd /lava-dispatcher && git checkout e545969affcc449d833b2fcd3b8efe2d966f72a3 && \
     cd /lava-dispatcher && git fetch https://review.linaro.org/lava/lava-dispatcher refs/changes/11/12711/5 && git cherry-pick FETCH_HEAD && \
     echo "adding patches for server" && \
-    cd / && git clone https://github.com/linaro/lava-server && ls -al / && cd /lava-server && git checkout master && \
-    cd /lava-server && git checkout 30facc1290ad2dd28ed4ad41ff971546e360f92e && \
+    cd / && git clone https://github.com/linaro/lava-server && cd /lava-server && git checkout master && \
+    #cd /lava-server && git checkout 30facc1290ad2dd28ed4ad41ff971546e360f92e && \
     cd /lava-server && git fetch https://review.linaro.org/lava/lava-server refs/changes/70/12670/1 && git cherry-pick FETCH_HEAD && \
     cd /lava-server && git fetch https://review.linaro.org/lava/lava-server refs/changes/23/12723/2 && git cherry-pick FETCH_HEAD && \
     cd /lava-server && git am /tools/monitor-test-jobs-hack.patch && \
