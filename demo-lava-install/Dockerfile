@@ -54,4 +54,6 @@ RUN /start.sh && mkdir -p /etc/dispatcher-config/devices && \
     /stop.sh
 
 EXPOSE 80
-#CMD ["/bin/bash", "/start.sh"]
+CMD bash -C '/start.sh' && \
+    '/bin/bash'
+
