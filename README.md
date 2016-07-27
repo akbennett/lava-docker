@@ -1,7 +1,9 @@
 # lava-docker
-Deploying LAVA in a docker image and getting things ready to execute LAVA jobs.
+This project is a simple project to deploy LAVA into a docker image and pre-configure it to run some initial tests on some demonstration devices.  At this time, running LAVA in Docker is not formally supported by Linaro or the LAVA team, but we exploring the possibility that containers enable.  
 
-Run the container
+Using Docker, a new user can have their first LAVA install up and running in a matter of seconds.  
+
+To run the container
 ```
   sudo docker run -t -i -p 8000:80 -h de2384825135 --privileged=true -v /boot:/boot -v /lib/modules:/lib/modules akbennett/lava
   # NOTE, new command line options for the docker run in order to work with the pipeline devices
@@ -10,18 +12,12 @@ Run the container
   # NEW: -h de2384825135  -- with v2, LAVA needs to know the name of the worker machine
 ```
 
-Then from inside the container, Start the services and run a set of simple test jobs
+Once the Container starts, you can submit jobs via the web interface, or run a few sample jobs using the helper script
 ```
-  /start.sh
   /submittestjob.sh
+  LAUNCH your web browser and navigate to http://localhost:8000
 ```
-
-# Docker tags in this project
-base-lava-install/ - This Dockerfile creates a base lava installation on Debian sid.  You will have to configure the server
-demo-lava-install/ - This Dockerfile and utilities create a fully functional server ready to run jobs on a qemu-system-x86_64 device, a qemu-system-aarch64 and a LAVA v2/pipeline qemu-system-x86_64 device
 
 # Docker hub tags
 * akbennett/lava --> akbennett/latest --> akbennett/lava:lava-demo
 * akbennett/lava:lava-demo  # LAVA installed and fully configured to run a demo on a kvm device *unsecure*
-* akbennett/lava:lava-on-sid  # LAVA installed clean on Debian sid
-* akbennett/lava:debian-sid  # Base Debian sid image
