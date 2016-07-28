@@ -1,6 +1,8 @@
 #Debian LAVA docker-container
 Designed to build and run a debian-based Docker container with LAVA on an Ubuntu 14.04 Host.
 
+This project is a simple project to deploy LAVA into a docker image and pre-configure it to run some initial tests on some demonstration devices.  At this time, running LAVA in Docker is not formally supported by Linaro or the LAVA team, but we are exploring the ease of use that docker and in-general containers enable.
+
 ## To build a new image locally
 It may be desired to disable or add to the Dockerfile.  This requires locally rebuilding the Docker Image.  To build an image locally, execute the following from the directory you cloned the repo:
 
@@ -108,12 +110,12 @@ See `docker commit` in the Docker documentation for more details.
 # Known Issues / Warnings
 * Note that when the container is run, there is a privilege = true option in the command line.  This is because LAVA is required privilege access to the OS to be able to mount loopbacks in order to function.  The user should be aware  that the whole container is running in privileged mode due to this.
 * An intermittent issue has been seen.  When running the `/submittingtestjob.sh` script which effectively runs an integrity test set of jobs against several QEMU installed targets, on occation an error occurs that looks similar below.  It occurs when running the /submittestjob.sh script.   If this occurs, it's an indicator that Apache2 has died.  The LAVA Server Web UI will also likely be unresponsive.  If this occurs, run `service apache2 reload` from within the running container and it should be resolved.
+* The API token is the same for all containers
 
 ```
 xmlrpclib.ProtocolError: ....500 Internal Server Error
 ```
 * As noted in the previous bullet, the Dockerfile is currently configured to automotically install 3 different QEMU targets for testing.  If this is not desired, the user should modify these configuration options from within the Dockerfile and rebuild to remove them from the resulting image.
 
-# docker hub tags
+# Interesting Docker hub tags
 * akbennett/lava --> akbennett/latest --> akbennett/lava:lava-demo
-* akbennett/lava:lava-demo  # LAVA installed and fully configured to run a demo on a kvm device *unsecure*
