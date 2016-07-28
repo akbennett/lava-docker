@@ -1,27 +1,32 @@
 # lava-docker
-Deploying LAVA in a docker image and getting things ready to execute LAVA jobs.
+This project is a simple project to deploy LAVA into a docker image and pre-configure it to run some initial tests on some demonstration devices.  At this time, running LAVA in Docker is not formally supported by Linaro or the LAVA team, but we are exploring the ease of use that docker and in-general containers enable.  
 
-Run the container
+Using Docker, a new user can have their first LAVA install up and running in a matter of seconds (sans download time).  
+
+To run the container
 ```
-  sudo docker run -t -i -p 8000:80 -h de2384825135 --privileged=true -v /boot:/boot -v /lib/modules:/lib/modules akbennett/lava
-  # NOTE, new command line options for the docker run in order to work with the pipeline devices
+  sudo docker run -t -i -p 8000:80 -h de2384825135 --privileged=true \
+                  -v /boot:/boot -v /lib/modules:/lib/modules akbennett/lava
+  
   # --privileged=true is necessary to mount an image (uses loopback) within the container
-  # NEW: -v /boot:/boot and -v /lib/modules:/lib/modules is neccessary due to libguestfs requireing a kernel and modules before it will run
-  # NEW: -h de2384825135  -- with v2, LAVA needs to know the name of the worker machine
+  # -v /boot:/boot and -v /lib/modules:/lib/modules is neccessary due to libguestfs has a dependency on the kernel and modules
+  # -h de2384825135  -- with v2, LAVA needs to know the name of the worker machine
 ```
 
-Then from inside the container, Start the services and run a set of simple test jobs
+Once the Container starts, you can submit jobs via the web interface, or run a few sample jobs using the helper script
 ```
-  /start.sh
   /submittestjob.sh
+  LAUNCH your web browser and navigate to http://localhost:8000
 ```
 
-# Docker tags in this project
-base-lava-install/ - This Dockerfile creates a base lava installation on Debian sid.  You will have to configure the server
-demo-lava-install/ - This Dockerfile and utilities create a fully functional server ready to run jobs on a qemu-system-x86_64 device, a qemu-system-aarch64 and a LAVA v2/pipeline qemu-system-x86_64 device
+Cautions:
 
-# Docker hub tags
+This LAVA installation is not very secure
+- Default username / password for administration is "admin"/"admin"
+- The API token is the same for all containers
+
+Production LAVA instances should be installed on bare metal, outside of a container
+- LAVA is a large system with many dependencies, installing it all in a container is great for ease of use, but long-term system maintenance within a container is not recommended
+
+# Interesting Docker hub tags
 * akbennett/lava --> akbennett/latest --> akbennett/lava:lava-demo
-* akbennett/lava:lava-demo  # LAVA installed and fully configured to run a demo on a kvm device *unsecure*
-* akbennett/lava:lava-on-sid  # LAVA installed clean on Debian sid
-* akbennett/lava:debian-sid  # Base Debian sid image
