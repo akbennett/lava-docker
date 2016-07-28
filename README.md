@@ -110,11 +110,12 @@ See `docker commit` in the Docker documentation for more details.
 # Known Issues / Warnings
 * Note that when the container is run, there is a privilege = true option in the command line.  This is because LAVA is required privilege access to the OS to be able to mount loopbacks in order to function.  The user should be aware  that the whole container is running in privileged mode due to this.
 * An intermittent issue has been seen.  When running the `/submittingtestjob.sh` script which effectively runs an integrity test set of jobs against several QEMU installed targets, on occation an error occurs that looks similar below.  It occurs when running the /submittestjob.sh script.   If this occurs, it's an indicator that Apache2 has died.  The LAVA Server Web UI will also likely be unresponsive.  If this occurs, run `service apache2 reload` from within the running container and it should be resolved.
-* The API token is the same for all containers
 
 ```
 xmlrpclib.ProtocolError: ....500 Internal Server Error
 ```
+
+* The API token is the same for all containers
 * As noted in the previous bullet, the Dockerfile is currently configured to automotically install 3 different QEMU targets for testing.  If this is not desired, the user should modify these configuration options from within the Dockerfile and rebuild to remove them from the resulting image.
 
 # Interesting Docker hub tags
