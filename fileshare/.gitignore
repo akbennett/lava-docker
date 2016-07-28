@@ -1,0 +1,4 @@
+# This directory intentionally empty 
+# Except this file
+!.gitignore
+# It's puspose is for a filesharing volume between host OS and the container after container is running.
