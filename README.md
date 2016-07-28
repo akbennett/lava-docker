@@ -5,8 +5,9 @@ Using Docker, a new user can have their first LAVA install up and running in a m
 
 To run the container
 ```
-  sudo docker run -t -i -p 8000:80 -h de2384825135 --privileged=true -v /boot:/boot -v /lib/modules:/lib/modules akbennett/lava
-  # NOTE, new command line options for docker
+  sudo docker run -t -i -p 8000:80 -h de2384825135 --privileged=true \
+                  -v /boot:/boot -v /lib/modules:/lib/modules akbennett/lava
+  
   # --privileged=true is necessary to mount an image (uses loopback) within the container
   # -v /boot:/boot and -v /lib/modules:/lib/modules is neccessary due to libguestfs has a dependency on the kernel and modules
   # -h de2384825135  -- with v2, LAVA needs to know the name of the worker machine
