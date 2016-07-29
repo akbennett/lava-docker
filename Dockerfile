@@ -55,7 +55,23 @@ ADD kvm-basic.json /tools/
 ADD kvm-qemu-aarch64.json /tools/
 ADD qemu.yaml /tools/
 
+# Add additional packages for remote configuration
+#  -- Add SSH
+RUN apt-get update && apt-get install -y openssh-server
+RUN mkdir /var/run/sshd
+RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN echo 'root:password' | chpasswd
+EXPOSE 22
+
+# Install basic tools for physically connected LAVA target control 
+RUN apt-get update && \
+     apt-get -y install vim && \
+     apt-get -y install android-tools-fastboot && \
+     apt-get -y install cu && \
+     apt-get -y install screen
+
 EXPOSE 80
 CMD bash -C '/start.sh' && \
+    '/usr/sbin/sshd'; \
     '/bin/bash'
 
