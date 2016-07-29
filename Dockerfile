@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y postgresql && \
 # Add qemu-system so we can run jobs on a qemu target
 RUN apt-get update && apt-get -y install qemu-system
 
-# Create a admin user
+# Create a admin user (Insecure note, this creates a default user, username: admin/admin)
 ADD createsuperuser.sh /tools/
 RUN apt-get update && apt-get -y install expect && \
     /start.sh && /tools/createsuperuser.sh && /stop.sh 
@@ -72,6 +72,6 @@ RUN apt-get update && \
 
 EXPOSE 80
 CMD bash -C '/start.sh' && \
-    '/usr/sbin/sshd'; \
+    '/usr/sbin/sshd' && \
     '/bin/bash'
 
