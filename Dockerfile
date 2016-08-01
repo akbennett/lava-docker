@@ -6,7 +6,7 @@ RUN export LANG=en_US.UTF-8
 #RUN echo 'Acquire::http { Proxy "http://dockerproxy:3142"; };' >> /etc/apt/apt.conf.d/01proxy
 
 ## Install debian packages used by the container
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     postgresql \
     qemu-system \
     expect \
@@ -15,6 +15,11 @@ RUN apt-get update && apt-get install -y \
     android-tools-fastboot \
     cu \
     screen \
+    lava-dispatcher \
+    lava-tool \
+    lava-coordinator \
+    lava-dev \
+    linaro-image-tools \
  && rm -rf /var/lib/apt/lists/*
 
 # Add services helper utilities to start and stop LAVA
