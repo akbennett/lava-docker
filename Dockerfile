@@ -74,5 +74,6 @@ RUN /start.sh && mkdir -p /etc/dispatcher-config/devices && \
     /stop.sh
 
 EXPOSE 80
-CMD bash -C '/start.sh' && \
-    '/bin/bash'
+CMD /start.sh && bash
+## Following CMD option starts the lava container without a shell and exposes the logs
+#CMD /start.sh && tail -f /var/log/lava-*/*
