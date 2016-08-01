@@ -64,10 +64,6 @@ RUN /start.sh && /tools/add-kvm-to-lava.sh && \
     echo "root_part=1" >> /etc/lava-dispatcher/devices/kvm01.conf && \
     /stop.sh
 
-# To run jobs using python XMLRPC, we need the API token (really ugly)
-COPY getAPItoken.sh /tools/
-RUN /start.sh && /tools/getAPItoken.sh && /stop.sh
-
 # Add a Pipeline device
 RUN /start.sh && mkdir -p /etc/dispatcher-config/devices && \
     cp /usr/lib/python2.7/dist-packages/lava_scheduler_app/tests/devices/qemu01.jinja2 \
@@ -77,6 +73,10 @@ RUN /start.sh && mkdir -p /etc/dispatcher-config/devices && \
     lava-server manage device-dictionary --hostname qemu01 \
        --import /etc/dispatcher-config/devices/qemu01.jinja2 && \
     /stop.sh
+
+# To run jobs using python XMLRPC, we need the API token (really ugly)
+COPY getAPItoken.sh /tools/
+RUN /start.sh && /tools/getAPItoken.sh && /stop.sh
 
 EXPOSE 80
 CMD /start.sh && bash
