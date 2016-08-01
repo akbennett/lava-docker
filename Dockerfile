@@ -5,10 +5,6 @@ RUN export LANG=en_US.UTF-8
 # Remove comment to enable local proxy server (e.g. apt-cacher-ng)
 #RUN echo 'Acquire::http { Proxy "http://dockerproxy:3142"; };' >> /etc/apt/apt.conf.d/01proxy
 
-# Add services helper utilities to start and stop LAVA
-COPY stop.sh .
-COPY start.sh .
-
 ## Install debian packages used by the container
 RUN apt-get update && apt-get install -y \
     postgresql \
@@ -20,6 +16,24 @@ RUN apt-get update && apt-get install -y \
     cu \
     screen \
  && rm -rf /var/lib/apt/lists/*
+
+# Add services helper utilities to start and stop LAVA
+COPY stop.sh .
+COPY start.sh .
+
+# Add some job submission utilities
+COPY submit.py /tools/
+COPY submityaml.py /tools/
+COPY submittestjob.sh .
+COPY kvm-basic.json /tools/
+COPY kvm-qemu-aarch64.json /tools/
+COPY qemu.yaml /tools/
+
+# Add support for SSH for remote configuration
+RUN mkdir /var/run/sshd && \
+    sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    echo 'root:password' | chpasswd
+EXPOSE 22
 
 # Install lava and configure apache to run the lava server
 COPY preseed.txt /data/
@@ -58,20 +72,6 @@ RUN /start.sh && mkdir -p /etc/dispatcher-config/devices && \
     lava-server manage device-dictionary --hostname qemu01 \
        --import /etc/dispatcher-config/devices/qemu01.jinja2 && \
     /stop.sh
-
-# Add some job submission utilities
-COPY submit.py /tools/
-COPY submityaml.py /tools/
-COPY submittestjob.sh .
-COPY kvm-basic.json /tools/
-COPY kvm-qemu-aarch64.json /tools/
-COPY qemu.yaml /tools/
-
-# Add support for SSH for remote configuration
-RUN mkdir /var/run/sshd && \
-    sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
-    echo 'root:password' | chpasswd
-EXPOSE 22
 
 EXPOSE 80
 CMD bash -C '/start.sh' && \
