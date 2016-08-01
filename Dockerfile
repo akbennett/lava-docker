@@ -9,9 +9,21 @@ RUN export LANG=en_US.UTF-8
 ADD stop.sh .
 ADD start.sh .
 
+## Install debian packages used by the container
+RUN apt-get update && apt-get install -y \
+    postgresql \
+    qemu-system \
+    expect \
+    openssh-server \
+    vim \
+    android-tools-fastboot \
+    cu \
+    screen \
+ && rm -rf /var/lib/apt/lists/*
+
 # Install lava and configure apache to run the lava server
 ADD preseed.txt /data/
-RUN apt-get update && apt-get install -y postgresql && \
+RUN apt-get update && \
     service postgresql start && \
     debconf-set-selections < /data/preseed.txt && \
     DEBIAN_FRONTEND=noninteractive apt-get -y install lava && \
@@ -20,13 +32,9 @@ RUN apt-get update && apt-get install -y postgresql && \
     /stop.sh && \
     hostname > /hostname  #log the hostname used during install for the slave name
 
-# Add qemu-system so we can run jobs on a qemu target
-RUN apt-get update && apt-get -y install qemu-system
-
 # Create a admin user (Insecure note, this creates a default user, username: admin/admin)
 ADD createsuperuser.sh /tools/
-RUN apt-get update && apt-get -y install expect && \
-    /start.sh && /tools/createsuperuser.sh && /stop.sh
+RUN /start.sh && /tools/createsuperuser.sh && /stop.sh
 
 # Add devices to the server (ugly, but it works)
 ADD add-kvm-to-lava.sh /tools/
@@ -60,18 +68,10 @@ ADD qemu.yaml /tools/
 
 # Add additional packages for remote configuration
 #  -- Add SSH
-RUN apt-get update && apt-get install -y openssh-server
 RUN mkdir /var/run/sshd
 RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 RUN echo 'root:password' | chpasswd
 EXPOSE 22
-
-# Install basic tools for physically connected LAVA target control
-RUN apt-get update && \
-     apt-get -y install vim && \
-     apt-get -y install android-tools-fastboot && \
-     apt-get -y install cu && \
-     apt-get -y install screen
 
 EXPOSE 80
 CMD bash -C '/start.sh' && \
