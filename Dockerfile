@@ -2,6 +2,9 @@ FROM debian:sid
 
 RUN export LANG=en_US.UTF-8
 
+# Remove comment to enable local proxy server (e.g. apt-cacher-ng)
+#RUN echo 'Acquire::http { Proxy "http://dockerproxy:3142"; };' >> /etc/apt/apt.conf.d/01proxy
+
 # Add services helper utilities to start and stop LAVA
 ADD stop.sh .
 ADD start.sh .
