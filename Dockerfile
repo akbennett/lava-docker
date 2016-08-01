@@ -6,8 +6,8 @@ RUN export LANG=en_US.UTF-8
 #RUN echo 'Acquire::http { Proxy "http://dockerproxy:3142"; };' >> /etc/apt/apt.conf.d/01proxy
 
 # Add services helper utilities to start and stop LAVA
-ADD stop.sh .
-ADD start.sh .
+COPY stop.sh .
+COPY start.sh .
 
 ## Install debian packages used by the container
 RUN apt-get update && apt-get install -y \
@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y \
  && rm -rf /var/lib/apt/lists/*
 
 # Install lava and configure apache to run the lava server
-ADD preseed.txt /data/
+COPY preseed.txt /data/
 RUN apt-get update && \
     service postgresql start && \
     debconf-set-selections < /data/preseed.txt && \
@@ -34,11 +34,11 @@ RUN apt-get update && \
     hostname > /hostname  #log the hostname used during install for the slave name
 
 # Create a admin user (Insecure note, this creates a default user, username: admin/admin)
-ADD createsuperuser.sh /tools/
+COPY createsuperuser.sh /tools/
 RUN /start.sh && /tools/createsuperuser.sh && /stop.sh
 
 # Add devices to the server (ugly, but it works)
-ADD add-kvm-to-lava.sh /tools/
+COPY add-kvm-to-lava.sh /tools/
 RUN /start.sh && /tools/add-kvm-to-lava.sh && \
     /usr/share/lava-server/add_device.py kvm kvm01 && \
     /usr/share/lava-server/add_device.py qemu-aarch64 qemu-aarch64-01 && \
@@ -46,7 +46,7 @@ RUN /start.sh && /tools/add-kvm-to-lava.sh && \
     /stop.sh
 
 # To run jobs using python XMLRPC, we need the API token (really ugly)
-ADD getAPItoken.sh /tools/
+COPY getAPItoken.sh /tools/
 RUN /start.sh && /tools/getAPItoken.sh && /stop.sh
 
 # Add a Pipeline device
@@ -60,12 +60,12 @@ RUN /start.sh && mkdir -p /etc/dispatcher-config/devices && \
     /stop.sh
 
 # Add some job submission utilities
-ADD submit.py /tools/
-ADD submityaml.py /tools/
-ADD submittestjob.sh .
-ADD kvm-basic.json /tools/
-ADD kvm-qemu-aarch64.json /tools/
-ADD qemu.yaml /tools/
+COPY submit.py /tools/
+COPY submityaml.py /tools/
+COPY submittestjob.sh .
+COPY kvm-basic.json /tools/
+COPY kvm-qemu-aarch64.json /tools/
+COPY qemu.yaml /tools/
 
 # Add support for SSH for remote configuration
 RUN mkdir /var/run/sshd && \
