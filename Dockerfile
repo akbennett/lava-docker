@@ -30,6 +30,7 @@ RUN apt-get update && \
     a2dissite 000-default && \
     a2ensite lava-server && \
     /stop.sh && \
+    rm -rf /var/lib/apt/lists/* && \
     hostname > /hostname  #log the hostname used during install for the slave name
 
 # Create a admin user (Insecure note, this creates a default user, username: admin/admin)
