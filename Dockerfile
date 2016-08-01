@@ -66,11 +66,10 @@ ADD kvm-basic.json /tools/
 ADD kvm-qemu-aarch64.json /tools/
 ADD qemu.yaml /tools/
 
-# Add additional packages for remote configuration
-#  -- Add SSH
-RUN mkdir /var/run/sshd
-RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-RUN echo 'root:password' | chpasswd
+# Add support for SSH for remote configuration
+RUN mkdir /var/run/sshd && \
+    sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config && \
+    echo 'root:password' | chpasswd
 EXPOSE 22
 
 EXPOSE 80
