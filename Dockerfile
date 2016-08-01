@@ -1,4 +1,4 @@
-FROM akbennett/lava:debian-sid
+FROM debian:sid
 
 RUN export LANG=en_US.UTF-8
 
