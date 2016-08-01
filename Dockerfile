@@ -75,5 +75,4 @@ RUN apt-get update && \
 
 EXPOSE 80
 CMD bash -C '/start.sh' && \
-    '/usr/sbin/sshd' && \
     '/bin/bash'
