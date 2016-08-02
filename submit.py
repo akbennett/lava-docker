@@ -28,6 +28,8 @@ def setup_args_parser():
                    type=lambda x: is_valid_file(parser, x, 'r'))
     parser.add_argument("-d", "--debug", action="store_true", help="Display verbose debug details")
     parser.add_argument("-p", "--poll", action="store_true", help="poll job status until job completes")
+    parser.add_argument("-k", "--apikey", default="apikey.txt", help="File containing the LAVA api key")
+    parser.add_argument("--port", default="80", help="LAVA/Apache default port number")
 
     return parser.parse_args()
 
@@ -91,12 +93,12 @@ def process():
     print "Submitting test job to LAVA server"
     loadConfiguration()
     user = "admin"
-    with open("/apikey.txt") as f: 
+    with open(args.apikey) as f:
         line = f.readline()
         apikey = line.rstrip('\n')
 
-    server_str = 'http://localhost'
-    xmlrpc_str = 'http://' + user + ":" + apikey + "@localhost" + '/RPC2/'
+    server_str = 'http://localhost' + ":" + args.port
+    xmlrpc_str = 'http://' + user + ":" + apikey + "@localhost" + ":" + args.port + '/RPC2/'
     server = xmlrpclib.ServerProxy(xmlrpc_str)
     server.system.listMethods()
 
