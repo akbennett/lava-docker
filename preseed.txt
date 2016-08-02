@@ -1,1 +1,1 @@
-lava-server   lava-server/instance-name string test-instance
+lava-server   lava-server/instance-name string lava-docker-instance

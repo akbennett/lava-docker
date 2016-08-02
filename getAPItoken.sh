@@ -25,5 +25,9 @@ curl -b cookies.txt -c cookies.txt -d $createapi -X POST $lavaurl/api/tokens/cre
 #retrieve the api key and store it in a file
 curl -b cookies.txt http://localhost/admin/linaro_django_xmlrpc/authtoken/1/change/ | grep id_secret | sed -n 's/.*value="\([^"]*\).*/\1/p' > apikey.txt 
 
-echo -n "APIKEY="
-cat apikey.txt
+echo -e "\n\n#####################################\n"
+echo -e "# LAVA ADMIN USER = $adminuser"
+echo -e "# LAVA ADMIN PASSWD = $adminpass"
+echo -e "# LAVA SLAVE HOSTNAME = `cat /hostname`"
+echo -n "# LAVA APIKEY = `cat apikey.txt`"
+echo -e "\n\n#####################################\n"
