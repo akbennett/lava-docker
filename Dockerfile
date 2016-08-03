@@ -16,7 +16,8 @@ COPY add-kvm-to-lava.sh /tools/
 COPY getAPItoken.sh /tools/
 COPY preseed.txt /data/
 
-RUN export LANG=en_US.UTF-8
+ENV DEBIAN_FRONTEND noninteractive
+ENV LANG en_US.UTF-8
 
 # Remove comment to enable local proxy server (e.g. apt-cacher-ng)
 #RUN echo 'Acquire::http { Proxy "http://dockerproxy:3142"; };' >> /etc/apt/apt.conf.d/01proxy
@@ -25,7 +26,7 @@ RUN export LANG=en_US.UTF-8
 # Configure apache to run the lava server
 # Log the hostname used during install for the slave name
 RUN apt-get update \
- && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+ && apt-get install -y \
  android-tools-fastboot \
  cu \
  expect \
@@ -41,7 +42,7 @@ RUN apt-get update \
  vim \
  && service postgresql start \
  && debconf-set-selections < /data/preseed.txt \
- && DEBIAN_FRONTEND=noninteractive apt-get -y install lava \
+ && apt-get -y install lava \
  && a2dissite 000-default \
  && a2ensite lava-server \
  && /stop.sh \
