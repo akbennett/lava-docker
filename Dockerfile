@@ -8,19 +8,19 @@ RUN export LANG=en_US.UTF-8
 # Install debian packages used by the container
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    postgresql \
-    qemu-system \
-    expect \
-    openssh-server \
-    vim \
-    android-tools-fastboot \
-    cu \
-    screen \
-    lava-dispatcher \
-    lava-tool \
-    lava-coordinator \
-    lava-dev \
-    linaro-image-tools \
+ android-tools-fastboot \
+ cu \
+ expect \
+ lava-coordinator \
+ lava-dev \
+ lava-dispatcher \
+ lava-tool \
+ linaro-image-tools \
+ openssh-server \
+ postgresql \
+ qemu-system \
+ screen \
+ vim \
  && rm -rf /var/lib/apt/lists/*
 
 # Add services helper utilities to start and stop LAVA
