@@ -22,6 +22,8 @@ RUN export LANG=en_US.UTF-8
 #RUN echo 'Acquire::http { Proxy "http://dockerproxy:3142"; };' >> /etc/apt/apt.conf.d/01proxy
 
 # Install debian packages used by the container
+# Configure apache to run the lava server
+# Log the hostname used during install for the slave name
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
  android-tools-fastboot \
@@ -37,17 +39,14 @@ RUN apt-get update \
  qemu-system \
  screen \
  vim \
- && rm -rf /var/lib/apt/lists/*
-
-# Install lava and configure apache to run the lava server
-RUN service postgresql start \
+ && service postgresql start \
  && debconf-set-selections < /data/preseed.txt \
  && DEBIAN_FRONTEND=noninteractive apt-get -y install lava \
  && a2dissite 000-default \
  && a2ensite lava-server \
  && /stop.sh \
- && rm -rf /var/lib/apt/lists/* \
- && hostname > /hostname  #log the hostname used during install for the slave name
+ && hostname > /hostname \
+ && rm -rf /var/lib/apt/lists/*
 
 # Create a admin user (Insecure note, this creates a default user, username: admin/admin)
 RUN /start.sh \
