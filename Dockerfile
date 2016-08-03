@@ -43,7 +43,6 @@ RUN apt-get update \
 RUN mkdir /var/run/sshd \
  && sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
  && echo 'root:password' | chpasswd
-EXPOSE 22
 
 # Install lava and configure apache to run the lava server
 RUN apt-get update \
@@ -85,7 +84,7 @@ RUN /start.sh \
  && /tools/getAPItoken.sh \
  && /stop.sh
 
-EXPOSE 80
+EXPOSE 22 80
 CMD /start.sh && bash
 # Following CMD option starts the lava container without a shell and exposes the logs
 #CMD /start.sh && tail -f /var/log/lava-*/*
