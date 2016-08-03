@@ -40,8 +40,7 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 
 # Install lava and configure apache to run the lava server
-RUN apt-get update \
- && service postgresql start \
+RUN service postgresql start \
  && debconf-set-selections < /data/preseed.txt \
  && DEBIAN_FRONTEND=noninteractive apt-get -y install lava \
  && a2dissite 000-default \
