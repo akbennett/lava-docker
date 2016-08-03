@@ -1,5 +1,21 @@
 FROM debian:sid
 
+# Add services helper utilities to start and stop LAVA
+COPY stop.sh .
+COPY start.sh .
+
+# Add some job submission utilities
+COPY submittestjob.sh .
+COPY *.json /tools/
+COPY *.py /tools/
+COPY *.yaml /tools/
+
+# Add misc utilities
+COPY createsuperuser.sh /tools/
+COPY add-kvm-to-lava.sh /tools/
+COPY getAPItoken.sh /tools/
+COPY preseed.txt /data/
+
 RUN export LANG=en_US.UTF-8
 
 # Remove comment to enable local proxy server (e.g. apt-cacher-ng)
@@ -23,18 +39,6 @@ RUN apt-get update \
  vim \
  && rm -rf /var/lib/apt/lists/*
 
-# Add services helper utilities to start and stop LAVA
-COPY stop.sh .
-COPY start.sh .
-
-# Add some job submission utilities
-COPY submit.py /tools/
-COPY submityaml.py /tools/
-COPY submittestjob.sh .
-COPY kvm-basic.json /tools/
-COPY kvm-qemu-aarch64.json /tools/
-COPY qemu.yaml /tools/
-
 # Add support for SSH for remote configuration
 RUN mkdir /var/run/sshd \
  && sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
@@ -42,7 +46,6 @@ RUN mkdir /var/run/sshd \
 EXPOSE 22
 
 # Install lava and configure apache to run the lava server
-COPY preseed.txt /data/
 RUN apt-get update \
  && service postgresql start \
  && debconf-set-selections < /data/preseed.txt \
@@ -54,13 +57,11 @@ RUN apt-get update \
  && hostname > /hostname  #log the hostname used during install for the slave name
 
 # Create a admin user (Insecure note, this creates a default user, username: admin/admin)
-COPY createsuperuser.sh /tools/
 RUN /start.sh \
  && /tools/createsuperuser.sh \
  && /stop.sh
 
 # Add devices to the server (ugly, but it works)
-COPY add-kvm-to-lava.sh /tools/
 RUN /start.sh \
  && /tools/add-kvm-to-lava.sh \
  && /usr/share/lava-server/add_device.py kvm kvm01 \
@@ -80,7 +81,6 @@ RUN /start.sh \
  && /stop.sh
 
 # To run jobs using python XMLRPC, we need the API token (really ugly)
-COPY getAPItoken.sh /tools/
 RUN /start.sh \
  && /tools/getAPItoken.sh \
  && /stop.sh
