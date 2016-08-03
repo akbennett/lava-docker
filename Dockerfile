@@ -39,11 +39,6 @@ RUN apt-get update \
  vim \
  && rm -rf /var/lib/apt/lists/*
 
-# Add support for SSH for remote configuration
-RUN mkdir /var/run/sshd \
- && sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
- && echo 'root:password' | chpasswd
-
 # Install lava and configure apache to run the lava server
 RUN apt-get update \
  && service postgresql start \
@@ -81,6 +76,11 @@ RUN /start.sh \
 RUN /start.sh \
  && /tools/getAPItoken.sh \
  && /stop.sh
+
+# Add support for SSH for remote configuration
+RUN mkdir /var/run/sshd \
+ && sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
+ && echo 'root:password' | chpasswd
 
 EXPOSE 22 80
 CMD /start.sh && bash
