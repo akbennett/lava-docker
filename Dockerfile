@@ -71,12 +71,10 @@ RUN /start.sh \
 # Add a Pipeline device
 RUN /start.sh \
  && mkdir -p /etc/dispatcher-config/devices \
- && cp /usr/lib/python2.7/dist-packages/lava_scheduler_app/tests/devices/qemu01.jinja2 \
-       /etc/dispatcher-config/devices/ \
+ && cp -a /usr/lib/python2.7/dist-packages/lava_scheduler_app/tests/devices/qemu01.jinja2 /etc/dispatcher-config/devices/ \
  && echo "{% set arch = 'amd64' %}">> /etc/dispatcher-config/devices/qemu01.jinja2 \
  && echo "{% set base_guest_fs_size = 2048 %}" >> /etc/dispatcher-config/devices/qemu01.jinja2 \
- && lava-server manage device-dictionary --hostname qemu01 \
-       --import /etc/dispatcher-config/devices/qemu01.jinja2 \
+ && lava-server manage device-dictionary --hostname qemu01 --import /etc/dispatcher-config/devices/qemu01.jinja2 \
  && /stop.sh
 
 # To run jobs using python XMLRPC, we need the API token (really ugly)
