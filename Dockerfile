@@ -5,7 +5,7 @@ RUN export LANG=en_US.UTF-8
 # Remove comment to enable local proxy server (e.g. apt-cacher-ng)
 #RUN echo 'Acquire::http { Proxy "http://dockerproxy:3142"; };' >> /etc/apt/apt.conf.d/01proxy
 
-## Install debian packages used by the container
+# Install debian packages used by the container
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
     postgresql \
     qemu-system \
@@ -80,5 +80,5 @@ RUN /start.sh && /tools/getAPItoken.sh && /stop.sh
 
 EXPOSE 80
 CMD /start.sh && bash
-## Following CMD option starts the lava container without a shell and exposes the logs
+# Following CMD option starts the lava container without a shell and exposes the logs
 #CMD /start.sh && tail -f /var/log/lava-*/*
