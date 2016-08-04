@@ -16,6 +16,11 @@ COPY add-kvm-to-lava.sh /tools/
 COPY getAPItoken.sh /tools/
 COPY preseed.txt /data/
 
+# (Optional) Add lava user SSH key and/or configuration
+# or mount a host file as a data volume (read-only)
+# e.g. -v /path/to/id_rsa_lava.pub:/home/lava/.ssh/authorized_keys:ro
+#COPY lava-credentials/.ssh /home/lava/.ssh
+
 ENV DEBIAN_FRONTEND noninteractive
 ENV LANG en_US.UTF-8
 
@@ -39,6 +44,7 @@ RUN apt-get update \
  postgresql \
  qemu-system \
  screen \
+ sudo \
  vim \
  && service postgresql start \
  && debconf-set-selections < /data/preseed.txt \
@@ -48,6 +54,13 @@ RUN apt-get update \
  && /stop.sh \
  && hostname > /hostname \
  && rm -rf /var/lib/apt/lists/*
+
+# Add lava user with super-user privilege
+RUN useradd -m -G plugdev lava \
+ && echo 'lava ALL = NOPASSWD: ALL' > /etc/sudoers.d/lava \
+ && chmod 0440 /etc/sudoers.d/lava \
+ && mkdir -p /var/run/sshd \
+ && chown -R lava:lava /home/lava/.ssh
 
 # Create a admin user (Insecure note, this creates a default user, username: admin/admin)
 RUN /start.sh \
@@ -75,11 +88,6 @@ RUN /start.sh \
 RUN /start.sh \
  && /tools/getAPItoken.sh \
  && /stop.sh
-
-# Add support for SSH for remote configuration
-RUN mkdir /var/run/sshd \
- && sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
- && echo 'root:password' | chpasswd
 
 EXPOSE 22 80
 CMD /start.sh && bash
