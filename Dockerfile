@@ -63,6 +63,8 @@ RUN useradd -m -G plugdev lava \
  && echo 'lava ALL = NOPASSWD: ALL' > /etc/sudoers.d/lava \
  && chmod 0440 /etc/sudoers.d/lava \
  && mkdir -p /var/run/sshd \
+ && mkdir -p /home/lava/.ssh \
+ && chmod 0700 /home/lava/.ssh \
  && chown -R lava:lava /home/lava/.ssh
 
 # Create a admin user (Insecure note, this creates a default user, username: admin/admin)
