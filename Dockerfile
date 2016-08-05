@@ -1,4 +1,4 @@
-FROM debian:sid
+FROM debian:jessie-backports
 
 # Add services helper utilities to start and stop LAVA
 COPY stop.sh .
@@ -25,6 +25,9 @@ ENV LANG en_US.UTF-8
 # Install debian packages used by the container
 # Configure apache to run the lava server
 # Log the hostname used during install for the slave name
+
+RUN echo "deb http://ftp.debian.org/debian jessie-backports main" >> /etc/apt/sources.list
+
 RUN apt-get update \
  && apt-get install -y \
  android-tools-fastboot \
@@ -42,7 +45,8 @@ RUN apt-get update \
  vim \
  && service postgresql start \
  && debconf-set-selections < /data/preseed.txt \
- && apt-get -y install lava \
+ && apt-get -t jessie-backports -y install lava \
+ && apt-get -t jessie-backports -y upgrade qemu-system-aarch64 \
  && a2dissite 000-default \
  && a2ensite lava-server \
  && /stop.sh \
