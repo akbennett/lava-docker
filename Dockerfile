@@ -1,4 +1,4 @@
-FROM debian:sid
+FROM debian:jessie-backports
 
 # Add services helper utilities to start and stop LAVA
 COPY stop.sh .
@@ -16,6 +16,11 @@ COPY add-kvm-to-lava.sh /tools/
 COPY getAPItoken.sh /tools/
 COPY preseed.txt /data/
 
+# (Optional) Add lava user SSH key and/or configuration
+# or mount a host file as a data volume (read-only)
+# e.g. -v /path/to/id_rsa_lava.pub:/home/lava/.ssh/authorized_keys:ro
+#COPY lava-credentials/.ssh /home/lava/.ssh
+
 ENV DEBIAN_FRONTEND noninteractive
 ENV LANG en_US.UTF-8
 
@@ -25,6 +30,9 @@ ENV LANG en_US.UTF-8
 # Install debian packages used by the container
 # Configure apache to run the lava server
 # Log the hostname used during install for the slave name
+
+RUN echo "deb http://ftp.debian.org/debian jessie-backports main" >> /etc/apt/sources.list
+
 RUN apt-get update \
  && apt-get install -y \
  android-tools-fastboot \
@@ -39,15 +47,25 @@ RUN apt-get update \
  postgresql \
  qemu-system \
  screen \
+ sudo \
  vim \
  && service postgresql start \
  && debconf-set-selections < /data/preseed.txt \
- && apt-get -y install lava \
+ && apt-get -t jessie-backports -y install lava \
+ && apt-get -t jessie-backports -y upgrade qemu-system-aarch64 \
  && a2dissite 000-default \
  && a2ensite lava-server \
  && /stop.sh \
- && hostname > /hostname \
  && rm -rf /var/lib/apt/lists/*
+
+# Add lava user with super-user privilege
+RUN useradd -m -G plugdev lava \
+ && echo 'lava ALL = NOPASSWD: ALL' > /etc/sudoers.d/lava \
+ && chmod 0440 /etc/sudoers.d/lava \
+ && mkdir -p /var/run/sshd \
+ && mkdir -p /home/lava/.ssh \
+ && chmod 0700 /home/lava/.ssh \
+ && chown -R lava:lava /home/lava/.ssh
 
 # Create a admin user (Insecure note, this creates a default user, username: admin/admin)
 RUN /start.sh \
@@ -56,6 +74,8 @@ RUN /start.sh \
 
 # Add devices to the server (ugly, but it works)
 RUN /start.sh \
+ && lava-server manage pipeline-worker --hostname lava-docker \
+ && echo "lava-docker" > /hostname \
  && /tools/add-kvm-to-lava.sh \
  && /usr/share/lava-server/add_device.py kvm kvm01 \
  && /usr/share/lava-server/add_device.py qemu-aarch64 qemu-aarch64-01 \
@@ -109,11 +129,6 @@ RUN /start.sh && \
 RUN /start.sh \
  && /tools/getAPItoken.sh \
  && /stop.sh
-
-# Add support for SSH for remote configuration
-RUN mkdir /var/run/sshd \
- && sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
- && echo 'root:password' | chpasswd
 
 EXPOSE 22 80
 CMD /start.sh && bash
