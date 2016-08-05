@@ -21,7 +21,6 @@ COPY preseed.txt /data/
 # e.g. -v /path/to/id_rsa_lava.pub:/home/lava/.ssh/authorized_keys:ro
 #COPY lava-credentials/.ssh /home/lava/.ssh
 
-ENV DEBIAN_FRONTEND noninteractive
 ENV LANG en_US.UTF-8
 
 # Remove comment to enable local proxy server (e.g. apt-cacher-ng)
@@ -34,7 +33,7 @@ ENV LANG en_US.UTF-8
 RUN echo "deb http://ftp.debian.org/debian jessie-backports main" >> /etc/apt/sources.list
 
 RUN apt-get update \
- && apt-get install -y \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y \
  android-tools-fastboot \
  cu \
  expect \
@@ -49,9 +48,10 @@ RUN apt-get update \
  screen \
  sudo \
  vim \
+ && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && locale-gen \
  && service postgresql start \
  && debconf-set-selections < /data/preseed.txt \
- && apt-get -t jessie-backports -y install lava \
+ && DEBIAN_FRONTEND=noninteractive apt-get -t jessie-backports -y install lava \
  && apt-get -t jessie-backports -y upgrade qemu-system-aarch64 \
  && a2dissite 000-default \
  && a2ensite lava-server \
