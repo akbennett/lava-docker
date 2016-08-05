@@ -50,7 +50,6 @@ RUN apt-get update \
  && a2dissite 000-default \
  && a2ensite lava-server \
  && /stop.sh \
- && hostname > /hostname \
  && rm -rf /var/lib/apt/lists/*
 
 # Create a admin user (Insecure note, this creates a default user, username: admin/admin)
@@ -60,6 +59,8 @@ RUN /start.sh \
 
 # Add devices to the server (ugly, but it works)
 RUN /start.sh \
+ && lava-server manage pipeline-worker --hostname lava-docker \
+ && echo "lava-docker" > /hostname \
  && /tools/add-kvm-to-lava.sh \
  && /usr/share/lava-server/add_device.py kvm kvm01 \
  && /usr/share/lava-server/add_device.py qemu-aarch64 qemu-aarch64-01 \
