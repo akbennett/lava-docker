@@ -29,9 +29,6 @@ ENV LANG en_US.UTF-8
 # Install debian packages used by the container
 # Configure apache to run the lava server
 # Log the hostname used during install for the slave name
-
-RUN echo "deb http://ftp.debian.org/debian jessie-backports main" >> /etc/apt/sources.list
-
 RUN apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
  android-tools-fastboot \
