@@ -1,1 +1,0 @@
-lava-server   lava-server/instance-name string lava-docker-instance

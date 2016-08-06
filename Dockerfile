@@ -14,7 +14,6 @@ COPY *.yaml /tools/
 COPY createsuperuser.sh /tools/
 COPY add-kvm-to-lava.sh /tools/
 COPY getAPItoken.sh /tools/
-COPY preseed.txt /data/
 
 # (Optional) Add lava user SSH key and/or configuration
 # or mount a host file as a data volume (read-only)
@@ -27,7 +26,8 @@ COPY preseed.txt /data/
 # Install debian packages used by the container
 # Configure apache to run the lava server
 # Log the hostname used during install for the slave name
-RUN echo 'locales locales/locales_to_be_generated multiselect C.UTF-8 UTF-8, en_US.UTF-8 UTF-8 ' | debconf-set-selections \
+RUN echo 'lava-server   lava-server/instance-name string lava-docker-instance' | debconf-set-selections \
+ && echo 'locales locales/locales_to_be_generated multiselect C.UTF-8 UTF-8, en_US.UTF-8 UTF-8 ' | debconf-set-selections \
  && echo 'locales locales/default_environment_locale select en_US.UTF-8' | debconf-set-selections \
  && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
@@ -46,7 +46,6 @@ RUN echo 'locales locales/locales_to_be_generated multiselect C.UTF-8 UTF-8, en_
  sudo \
  vim \
  && service postgresql start \
- && debconf-set-selections < /data/preseed.txt \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y -t jessie-backports \
  lava \
  qemu-system \
