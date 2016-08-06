@@ -21,15 +21,15 @@ COPY preseed.txt /data/
 # e.g. -v /path/to/id_rsa_lava.pub:/home/lava/.ssh/authorized_keys:ro
 #COPY lava-credentials/.ssh /home/lava/.ssh
 
-ENV LANG en_US.UTF-8
-
 # Remove comment to enable local proxy server (e.g. apt-cacher-ng)
 #RUN echo 'Acquire::http { Proxy "http://dockerproxy:3142"; };' >> /etc/apt/apt.conf.d/01proxy
 
 # Install debian packages used by the container
 # Configure apache to run the lava server
 # Log the hostname used during install for the slave name
-RUN apt-get update \
+RUN echo 'locales locales/locales_to_be_generated multiselect C.UTF-8 UTF-8, en_US.UTF-8 UTF-8 ' | debconf-set-selections \
+ && echo 'locales locales/default_environment_locale select en_US.UTF-8' | debconf-set-selections \
+ && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
  android-tools-fastboot \
  cu \
@@ -39,12 +39,12 @@ RUN apt-get update \
  lava-dispatcher \
  lava-tool \
  linaro-image-tools \
+ locales \
  openssh-server \
  postgresql \
  screen \
  sudo \
  vim \
- && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && locale-gen \
  && service postgresql start \
  && debconf-set-selections < /data/preseed.txt \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y -t jessie-backports \
