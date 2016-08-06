@@ -92,38 +92,39 @@ RUN /start.sh \
  && /stop.sh
 
 # CORTEX-M3: add python-sphinx-bootstrap-theme
-RUN sudo apt-get update && apt-get install -y python-sphinx-bootstrap-theme \
+RUN sudo apt-get update && apt-get install -y python-sphinx-bootstrap-theme node-uglify docbook-xsl xsltproc python-mock \
  && rm -rf /var/lib/apt/lists/*
 
 # CORTEX-M3: apply patches to enable cortex-m3 support
 COPY monitor-test-jobs-hack.patch /tools
-RUN /start.sh && \
-    echo "CORTEX-M3: adding patches for lava-dispatcher" && \
-    git clone -b master https://github.com/linaro/lava-dispatcher /lava-dispatcher && \
-    #cd /lava-dispatcher && git checkout e545969affcc449d833b2fcd3b8efe2d966f72a3 && \
-    cd /lava-dispatcher && \
-        git fetch https://review.linaro.org/lava/lava-dispatcher refs/changes/11/12711/5 && git cherry-pick FETCH_HEAD && \
-    echo "CORTEX-M3: adding patches for lava-server" && \
-    git clone -b master https://github.com/linaro/lava-server /lava-server && \
-    #cd /lava-server && git checkout 30facc1290ad2dd28ed4ad41ff971546e360f92e && \
-    cd /lava-server && \
-        git fetch https://review.linaro.org/lava/lava-server refs/changes/70/12670/1 && git cherry-pick FETCH_HEAD && \
-        git fetch https://review.linaro.org/lava/lava-server refs/changes/23/12723/2 && git cherry-pick FETCH_HEAD && \
-        git am /tools/monitor-test-jobs-hack.patch && \
-    echo "CORTEX-M3: add build then install capability to debian-dev-build.sh" && \
-    echo "cd \${DIR} && dpkg -i *.deb" >> /lava-server/share/debian-dev-build.sh && \
-    echo "CORTEX-M3: Installing patched versions of dispatcher & server" && \
-    cd /lava-dispatcher && /lava-server/share/debian-dev-build.sh -p lava-dispatcher && \
-    cd /lava-server && /lava-server/share/debian-dev-build.sh -p lava-server && \
-    /stop.sh
+RUN /start.sh \
+ && echo "CORTEX-M3: adding patches for lava-dispatcher" \
+ && git clone -b master https://github.com/linaro/lava-dispatcher /lava-dispatcher \
+ && cd /lava-dispatcher && git checkout 8753b43 \
+ && cd /lava-dispatcher \
+ && git fetch https://review.linaro.org/lava/lava-dispatcher refs/changes/11/12711/5 && git cherry-pick FETCH_HEAD \
+ && echo "CORTEX-M3: adding patches for lava-server" \
+ && git clone -b master https://github.com/linaro/lava-server /lava-server \
+ # && cd /lava-server && git checkout 30facc1290ad2dd28ed4ad41ff971546e360f92e \
+ && cd /lava-server \
+ && git fetch https://review.linaro.org/lava/lava-server refs/changes/70/12670/1 && git cherry-pick FETCH_HEAD \
+ && git fetch https://review.linaro.org/lava/lava-server refs/changes/23/12723/2 && git cherry-pick FETCH_HEAD \
+ && git am /tools/monitor-test-jobs-hack.patch \
+ && echo "CORTEX-M3: add build then install capability to debian-dev-build.sh" \
+ && echo "cd \${DIR} && dpkg -i *.deb" >> /lava-server/share/debian-dev-build.sh \
+ && echo "CORTEX-M3: Installing patched versions of dispatcher & server" \
+ && cd /lava-dispatcher && /lava-server/share/debian-dev-build.sh -p lava-dispatcher \
+ && cd /lava-server && /lava-server/share/debian-dev-build.sh -p lava-server \
+ && /stop.sh
 
 # CORTEX-M3: add a qemu-cortex-m3 Pipeline device
 COPY qemu-cortex-m3.yaml /tools/
 COPY qemu-cortex-m3-01.jinja2 /etc/dispatcher-config/devices/
-RUN /start.sh && \
-    lava-server manage device-dictionary --hostname qemu-cortex-m3-01 \
-       --import /etc/dispatcher-config/devices/qemu-cortex-m3-01.jinja2 && \
-    /stop.sh
+COPY monitor-test-jobs-hack.patch /tools/
+RUN /start.sh \
+ && lava-server manage device-dictionary --hostname qemu-cortex-m3-01 \
+       --import /etc/dispatcher-config/devices/qemu-cortex-m3-01.jinja2 \
+ && /stop.sh
 
 # To run jobs using python XMLRPC, we need the API token (really ugly)
 RUN /start.sh \
