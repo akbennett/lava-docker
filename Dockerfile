@@ -41,15 +41,15 @@ RUN apt-get update \
  linaro-image-tools \
  openssh-server \
  postgresql \
- qemu-system \
  screen \
  sudo \
  vim \
  && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && locale-gen \
  && service postgresql start \
  && debconf-set-selections < /data/preseed.txt \
- && DEBIAN_FRONTEND=noninteractive apt-get -t jessie-backports -y install lava \
- && apt-get -t jessie-backports -y upgrade qemu-system-aarch64 \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y -t jessie-backports \
+ lava \
+ qemu-system \
  && a2dissite 000-default \
  && a2ensite lava-server \
  && /stop.sh \
