@@ -13,11 +13,11 @@ postgres-ready () {
 
 start () {
   echo "Starting $1"
-  if (( $(ps -ef | grep -v grep | grep -v add_device | grep -v dispatcher-config | grep $1 | wc -l) > 0 ))
+  if (( $(ps -ef | grep -v grep | grep -v add_device | grep -v dispatcher-config | grep "$1" | wc -l) > 0 ))
   then
     echo "$1 appears to be running"
   else
-    service $1 start
+    service "$1" start
   fi
 }
 

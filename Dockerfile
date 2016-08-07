@@ -5,23 +5,16 @@ COPY stop.sh .
 COPY start.sh .
 
 # Add some job submission utilities
-COPY submittestjob.sh .
-COPY *.json /tools/
-COPY *.py /tools/
-COPY *.yaml /tools/
+COPY submittestjob.sh /home/lava/bin/
+COPY *.json *.py *.yaml /home/lava/bin/
 
 # Add misc utilities
-COPY createsuperuser.sh /tools/
-COPY add-kvm-to-lava.sh /tools/
-COPY getAPItoken.sh /tools/
-COPY preseed.txt /data/
+COPY createsuperuser.sh add-kvm-to-lava.sh getAPItoken.sh lava-credentials.txt /home/lava/bin/
 
 # (Optional) Add lava user SSH key and/or configuration
 # or mount a host file as a data volume (read-only)
 # e.g. -v /path/to/id_rsa_lava.pub:/home/lava/.ssh/authorized_keys:ro
 #COPY lava-credentials/.ssh /home/lava/.ssh
-
-ENV LANG en_US.UTF-8
 
 # Remove comment to enable local proxy server (e.g. apt-cacher-ng)
 #RUN echo 'Acquire::http { Proxy "http://dockerproxy:3142"; };' >> /etc/apt/apt.conf.d/01proxy
@@ -29,10 +22,10 @@ ENV LANG en_US.UTF-8
 # Install debian packages used by the container
 # Configure apache to run the lava server
 # Log the hostname used during install for the slave name
-
-RUN echo "deb http://ftp.debian.org/debian jessie-backports main" >> /etc/apt/sources.list
-
-RUN apt-get update \
+RUN echo 'lava-server   lava-server/instance-name string lava-docker-instance' | debconf-set-selections \
+ && echo 'locales locales/locales_to_be_generated multiselect C.UTF-8 UTF-8, en_US.UTF-8 UTF-8 ' | debconf-set-selections \
+ && echo 'locales locales/default_environment_locale select en_US.UTF-8' | debconf-set-selections \
+ && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
  android-tools-fastboot \
  cu \
@@ -42,17 +35,16 @@ RUN apt-get update \
  lava-dispatcher \
  lava-tool \
  linaro-image-tools \
+ locales \
  openssh-server \
  postgresql \
- qemu-system \
  screen \
  sudo \
  vim \
- && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && locale-gen \
  && service postgresql start \
- && debconf-set-selections < /data/preseed.txt \
- && DEBIAN_FRONTEND=noninteractive apt-get -t jessie-backports -y install lava \
- && apt-get -t jessie-backports -y upgrade qemu-system-aarch64 \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y -t jessie-backports \
+ lava \
+ qemu-system \
  && a2dissite 000-default \
  && a2ensite lava-server \
  && /stop.sh \
@@ -62,21 +54,20 @@ RUN apt-get update \
 RUN useradd -m -G plugdev lava \
  && echo 'lava ALL = NOPASSWD: ALL' > /etc/sudoers.d/lava \
  && chmod 0440 /etc/sudoers.d/lava \
- && mkdir -p /var/run/sshd \
- && mkdir -p /home/lava/.ssh \
+ && mkdir -p /var/run/sshd /home/lava/bin /home/lava/.ssh \
  && chmod 0700 /home/lava/.ssh \
- && chown -R lava:lava /home/lava/.ssh
+ && chown -R lava:lava /home/lava/bin /home/lava/.ssh
 
 # Create a admin user (Insecure note, this creates a default user, username: admin/admin)
 RUN /start.sh \
- && /tools/createsuperuser.sh \
+ && /home/lava/bin/createsuperuser.sh \
  && /stop.sh
 
 # Add devices to the server (ugly, but it works)
 RUN /start.sh \
  && lava-server manage pipeline-worker --hostname lava-docker \
- && echo "lava-docker" > /hostname \
- && /tools/add-kvm-to-lava.sh \
+ && echo "lava-docker" > /home/lava/bin/hostname.txt \
+ && /home/lava/bin/add-kvm-to-lava.sh \
  && /usr/share/lava-server/add_device.py kvm kvm01 \
  && /usr/share/lava-server/add_device.py qemu-aarch64 qemu-aarch64-01 \
  && echo "root_part=1" >> /etc/lava-dispatcher/devices/kvm01.conf \
@@ -93,7 +84,7 @@ RUN /start.sh \
 
 # To run jobs using python XMLRPC, we need the API token (really ugly)
 RUN /start.sh \
- && /tools/getAPItoken.sh \
+ && /home/lava/bin/getAPItoken.sh \
  && /stop.sh
 
 EXPOSE 22 80
