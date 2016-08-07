@@ -5,15 +5,11 @@ COPY stop.sh .
 COPY start.sh .
 
 # Add some job submission utilities
-COPY submittestjob.sh .
-COPY *.json /tools/
-COPY *.py /tools/
-COPY *.yaml /tools/
+COPY submittestjob.sh /home/lava/bin/
+COPY *.json *.py *.yaml /home/lava/bin/
 
 # Add misc utilities
-COPY createsuperuser.sh /tools/
-COPY add-kvm-to-lava.sh /tools/
-COPY getAPItoken.sh /tools/
+COPY createsuperuser.sh add-kvm-to-lava.sh getAPItoken.sh /home/lava/bin/
 
 # (Optional) Add lava user SSH key and/or configuration
 # or mount a host file as a data volume (read-only)
@@ -64,14 +60,14 @@ RUN useradd -m -G plugdev lava \
 
 # Create a admin user (Insecure note, this creates a default user, username: admin/admin)
 RUN /start.sh \
- && /tools/createsuperuser.sh \
+ && /home/lava/bin/createsuperuser.sh \
  && /stop.sh
 
 # Add devices to the server (ugly, but it works)
 RUN /start.sh \
  && lava-server manage pipeline-worker --hostname lava-docker \
- && echo "lava-docker" > /hostname \
- && /tools/add-kvm-to-lava.sh \
+ && echo "lava-docker" > /home/lava/bin/hostname.txt \
+ && /home/lava/bin/add-kvm-to-lava.sh \
  && /usr/share/lava-server/add_device.py kvm kvm01 \
  && /usr/share/lava-server/add_device.py qemu-aarch64 qemu-aarch64-01 \
  && echo "root_part=1" >> /etc/lava-dispatcher/devices/kvm01.conf \
@@ -88,7 +84,7 @@ RUN /start.sh \
 
 # To run jobs using python XMLRPC, we need the API token (really ugly)
 RUN /start.sh \
- && /tools/getAPItoken.sh \
+ && /home/lava/bin/getAPItoken.sh \
  && /stop.sh
 
 EXPOSE 22 80
