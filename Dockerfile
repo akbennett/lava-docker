@@ -9,7 +9,7 @@ COPY submittestjob.sh /home/lava/bin/
 COPY *.json *.py *.yaml /home/lava/bin/
 
 # Add misc utilities
-COPY createsuperuser.sh add-kvm-to-lava.sh getAPItoken.sh /home/lava/bin/
+COPY createsuperuser.sh add-kvm-to-lava.sh getAPItoken.sh lava-credentials.txt /home/lava/bin/
 
 # (Optional) Add lava user SSH key and/or configuration
 # or mount a host file as a data volume (read-only)

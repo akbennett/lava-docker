@@ -1,8 +1,10 @@
 #!/bin/bash
 # Create an API token in the database and store it in a file
 
-adminuser=admin
-adminpass=admin
+curdir="$(dirname "$(readlink -f "$0")")"
+if [ -f "${curdir}/lava-credentials.txt" ]; then
+  . "${curdir}"/lava-credentials.txt
+fi
 
 lavaurl=http://localhost
 tools_path="${tools_path:-/home/lava/bin}"

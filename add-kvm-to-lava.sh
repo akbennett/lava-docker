@@ -1,8 +1,10 @@
 #!/bin/bash
 #Create a kvm devicetype and add a kvm device to the lava server
 
-adminuser=admin
-adminpass=admin
+curdir="$(dirname "$(readlink -f "$0")")"
+if [ -f "${curdir}/lava-credentials.txt" ]; then
+  . "${curdir}"/lava-credentials.txt
+fi
 
 lavaurl=http://localhost
 tools_path="${tools_path:-/home/lava/bin}"
