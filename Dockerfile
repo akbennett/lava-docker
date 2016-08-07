@@ -5,23 +5,16 @@ COPY stop.sh .
 COPY start.sh .
 
 # Add some job submission utilities
-COPY submittestjob.sh .
-COPY *.json /tools/
-COPY *.py /tools/
-COPY *.yaml /tools/
+COPY submittestjob.sh /home/lava/bin/
+COPY *.json *.py *.yaml /home/lava/bin/
 
 # Add misc utilities
-COPY createsuperuser.sh /tools/
-COPY add-kvm-to-lava.sh /tools/
-COPY getAPItoken.sh /tools/
-COPY preseed.txt /data/
+COPY createsuperuser.sh add-kvm-to-lava.sh getAPItoken.sh lava-credentials.txt /home/lava/bin/
 
 # (Optional) Add lava user SSH key and/or configuration
 # or mount a host file as a data volume (read-only)
 # e.g. -v /path/to/id_rsa_lava.pub:/home/lava/.ssh/authorized_keys:ro
 #COPY lava-credentials/.ssh /home/lava/.ssh
-
-ENV LANG en_US.UTF-8
 
 # Remove comment to enable local proxy server (e.g. apt-cacher-ng)
 #RUN echo 'Acquire::http { Proxy "http://dockerproxy:3142"; };' >> /etc/apt/apt.conf.d/01proxy
@@ -29,10 +22,10 @@ ENV LANG en_US.UTF-8
 # Install debian packages used by the container
 # Configure apache to run the lava server
 # Log the hostname used during install for the slave name
-
-RUN echo "deb http://ftp.debian.org/debian jessie-backports main" >> /etc/apt/sources.list
-
-RUN apt-get update \
+RUN echo 'lava-server   lava-server/instance-name string lava-docker-instance' | debconf-set-selections \
+ && echo 'locales locales/locales_to_be_generated multiselect C.UTF-8 UTF-8, en_US.UTF-8 UTF-8 ' | debconf-set-selections \
+ && echo 'locales locales/default_environment_locale select en_US.UTF-8' | debconf-set-selections \
+ && apt-get update \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y \
  android-tools-fastboot \
  cu \
@@ -42,17 +35,16 @@ RUN apt-get update \
  lava-dispatcher \
  lava-tool \
  linaro-image-tools \
+ locales \
  openssh-server \
  postgresql \
- qemu-system \
  screen \
  sudo \
  vim \
- && echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen && locale-gen \
  && service postgresql start \
- && debconf-set-selections < /data/preseed.txt \
- && DEBIAN_FRONTEND=noninteractive apt-get -t jessie-backports -y install lava \
- && apt-get -t jessie-backports -y upgrade qemu-system-aarch64 \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y -t jessie-backports \
+ lava \
+ qemu-system \
  && a2dissite 000-default \
  && a2ensite lava-server \
  && /stop.sh \
@@ -62,21 +54,20 @@ RUN apt-get update \
 RUN useradd -m -G plugdev lava \
  && echo 'lava ALL = NOPASSWD: ALL' > /etc/sudoers.d/lava \
  && chmod 0440 /etc/sudoers.d/lava \
- && mkdir -p /var/run/sshd \
- && mkdir -p /home/lava/.ssh \
+ && mkdir -p /var/run/sshd /home/lava/bin /home/lava/.ssh \
  && chmod 0700 /home/lava/.ssh \
- && chown -R lava:lava /home/lava/.ssh
+ && chown -R lava:lava /home/lava/bin /home/lava/.ssh
 
 # Create a admin user (Insecure note, this creates a default user, username: admin/admin)
 RUN /start.sh \
- && /tools/createsuperuser.sh \
+ && /home/lava/bin/createsuperuser.sh \
  && /stop.sh
 
 # Add devices to the server (ugly, but it works)
 RUN /start.sh \
  && lava-server manage pipeline-worker --hostname lava-docker \
- && echo "lava-docker" > /hostname \
- && /tools/add-kvm-to-lava.sh \
+ && echo "lava-docker" > /home/lava/bin/hostname.txt \
+ && /home/lava/bin/add-kvm-to-lava.sh \
  && /usr/share/lava-server/add_device.py kvm kvm01 \
  && /usr/share/lava-server/add_device.py qemu-aarch64 qemu-aarch64-01 \
  && echo "root_part=1" >> /etc/lava-dispatcher/devices/kvm01.conf \
@@ -96,31 +87,28 @@ RUN sudo apt-get update && apt-get install -y python-sphinx-bootstrap-theme node
  && rm -rf /var/lib/apt/lists/*
 
 # CORTEX-M3: apply patches to enable cortex-m3 support
-COPY monitor-test-jobs-hack.patch /tools
+COPY monitor-test-jobs-hack.patch /home/lava/
 RUN /start.sh \
  && echo "CORTEX-M3: adding patches for lava-dispatcher" \
- && git clone -b master https://github.com/linaro/lava-dispatcher /lava-dispatcher \
- && cd /lava-dispatcher && git checkout 8753b43 \
- && cd /lava-dispatcher \
+ && git clone -b master https://github.com/linaro/lava-dispatcher /home/lava/lava-dispatcher \
+ && cd /home/lava/lava-dispatcher && git checkout 8753b43 \
  && git fetch https://review.linaro.org/lava/lava-dispatcher refs/changes/11/12711/5 && git cherry-pick FETCH_HEAD \
  && echo "CORTEX-M3: adding patches for lava-server" \
- && git clone -b master https://github.com/linaro/lava-server /lava-server \
- # && cd /lava-server && git checkout 30facc1290ad2dd28ed4ad41ff971546e360f92e \
- && cd /lava-server \
+ && git clone -b master https://github.com/linaro/lava-server /home/lava/lava-server \
+ # && cd /home/lava/lava-server && git checkout 30facc1290ad2dd28ed4ad41ff971546e360f92e \
+ && cd /home/lava/lava-server \
  && git fetch https://review.linaro.org/lava/lava-server refs/changes/70/12670/1 && git cherry-pick FETCH_HEAD \
  && git fetch https://review.linaro.org/lava/lava-server refs/changes/23/12723/2 && git cherry-pick FETCH_HEAD \
- && git am /tools/monitor-test-jobs-hack.patch \
+ && git am /home/lava/monitor-test-jobs-hack.patch \
  && echo "CORTEX-M3: add build then install capability to debian-dev-build.sh" \
- && echo "cd \${DIR} && dpkg -i *.deb" >> /lava-server/share/debian-dev-build.sh \
+ && echo "cd \${DIR} && dpkg -i *.deb" >> /home/lava/lava-server/share/debian-dev-build.sh \
  && echo "CORTEX-M3: Installing patched versions of dispatcher & server" \
- && cd /lava-dispatcher && /lava-server/share/debian-dev-build.sh -p lava-dispatcher \
- && cd /lava-server && /lava-server/share/debian-dev-build.sh -p lava-server \
+ && cd /home/lava/lava-dispatcher && /home/lava/lava-server/share/debian-dev-build.sh -p lava-dispatcher \
+ && cd /home/lava/lava-server && /home/lava/lava-server/share/debian-dev-build.sh -p lava-server \
  && /stop.sh
 
 # CORTEX-M3: add a qemu-cortex-m3 Pipeline device
-COPY qemu-cortex-m3.yaml /tools/
 COPY qemu-cortex-m3-01.jinja2 /etc/dispatcher-config/devices/
-COPY monitor-test-jobs-hack.patch /tools/
 RUN /start.sh \
  && lava-server manage device-dictionary --hostname qemu-cortex-m3-01 \
        --import /etc/dispatcher-config/devices/qemu-cortex-m3-01.jinja2 \
@@ -128,7 +116,7 @@ RUN /start.sh \
 
 # To run jobs using python XMLRPC, we need the API token (really ugly)
 RUN /start.sh \
- && /tools/getAPItoken.sh \
+ && /home/lava/bin/getAPItoken.sh \
  && /stop.sh
 
 EXPOSE 22 80
