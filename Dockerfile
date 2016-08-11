@@ -4,21 +4,6 @@ FROM debian:jessie-backports
 COPY stop.sh .
 COPY start.sh .
 
-# Add some job submission utilities
-COPY submittestjob.sh /home/lava/bin/
-COPY *.json *.py *.yaml /home/lava/bin/
-
-# Add misc utilities
-COPY createsuperuser.sh add-kvm-to-lava.sh getAPItoken.sh lava-credentials.txt /home/lava/bin/
-
-# (Optional) Add lava user SSH key and/or configuration
-# or mount a host file as a data volume (read-only)
-# e.g. -v /path/to/id_rsa_lava.pub:/home/lava/.ssh/authorized_keys:ro
-#COPY lava-credentials/.ssh /home/lava/.ssh
-
-# Remove comment to enable local proxy server (e.g. apt-cacher-ng)
-#RUN echo 'Acquire::http { Proxy "http://dockerproxy:3142"; };' >> /etc/apt/apt.conf.d/01proxy
-
 # Install debian packages used by the container
 # Configure apache to run the lava server
 # Log the hostname used during install for the slave name
@@ -49,6 +34,21 @@ RUN echo 'lava-server   lava-server/instance-name string lava-docker-instance' |
  && a2ensite lava-server \
  && /stop.sh \
  && rm -rf /var/lib/apt/lists/*
+
+# Add some job submission utilities
+COPY submittestjob.sh /home/lava/bin/
+COPY *.json *.py *.yaml /home/lava/bin/
+
+# Add misc utilities
+COPY createsuperuser.sh add-kvm-to-lava.sh getAPItoken.sh lava-credentials.txt /home/lava/bin/
+
+# (Optional) Add lava user SSH key and/or configuration
+# or mount a host file as a data volume (read-only)
+# e.g. -v /path/to/id_rsa_lava.pub:/home/lava/.ssh/authorized_keys:ro
+#COPY lava-credentials/.ssh /home/lava/.ssh
+
+# Remove comment to enable local proxy server (e.g. apt-cacher-ng)
+#RUN echo 'Acquire::http { Proxy "http://dockerproxy:3142"; };' >> /etc/apt/apt.conf.d/01proxy
 
 # Add lava user with super-user privilege
 RUN useradd -m -G plugdev lava \
@@ -91,14 +91,15 @@ COPY monitor-test-jobs-hack.patch /home/lava/
 RUN /start.sh \
  && echo "CORTEX-M3: adding patches for lava-dispatcher" \
  && git clone -b master https://github.com/linaro/lava-dispatcher /home/lava/lava-dispatcher \
- && cd /home/lava/lava-dispatcher && git checkout 8753b43 \
- && git fetch https://review.linaro.org/lava/lava-dispatcher refs/changes/11/12711/5 && git cherry-pick FETCH_HEAD \
+ && cd /home/lava/lava-dispatcher \
+ && git checkout 8753b43 \
+ && git fetch https://review.linaro.org/lava/lava-dispatcher refs/changes/11/12711/9 && git cherry-pick FETCH_HEAD \
  && echo "CORTEX-M3: adding patches for lava-server" \
  && git clone -b master https://github.com/linaro/lava-server /home/lava/lava-server \
  # && cd /home/lava/lava-server && git checkout 30facc1290ad2dd28ed4ad41ff971546e360f92e \
  && cd /home/lava/lava-server \
  && git fetch https://review.linaro.org/lava/lava-server refs/changes/70/12670/1 && git cherry-pick FETCH_HEAD \
- && git fetch https://review.linaro.org/lava/lava-server refs/changes/23/12723/2 && git cherry-pick FETCH_HEAD \
+ && git fetch https://review.linaro.org/lava/lava-server refs/changes/23/12723/3 && git cherry-pick FETCH_HEAD \
  && git am /home/lava/monitor-test-jobs-hack.patch \
  && echo "CORTEX-M3: add build then install capability to debian-dev-build.sh" \
  && echo "cd \${DIR} && dpkg -i *.deb" >> /home/lava/lava-server/share/debian-dev-build.sh \
