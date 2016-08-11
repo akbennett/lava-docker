@@ -58,6 +58,21 @@ RUN useradd -m -G plugdev lava \
  && chmod 0700 /home/lava/.ssh \
  && chown -R lava:lava /home/lava/bin /home/lava/.ssh
 
+# Add some job submission utilities
+COPY submittestjob.sh /home/lava/bin/
+COPY *.json *.py *.yaml /home/lava/bin/
+
+# Add misc utilities
+COPY createsuperuser.sh add-kvm-to-lava.sh getAPItoken.sh lava-credentials.txt /home/lava/bin/
+
+# (Optional) Add lava user SSH key and/or configuration
+# or mount a host file as a data volume (read-only)
+# e.g. -v /path/to/id_rsa_lava.pub:/home/lava/.ssh/authorized_keys:ro
+#COPY lava-credentials/.ssh /home/lava/.ssh
+
+# Remove comment to enable local proxy server (e.g. apt-cacher-ng)
+#RUN echo 'Acquire::http { Proxy "http://dockerproxy:3142"; };' >> /etc/apt/apt.conf.d/01proxy
+
 # Create a admin user (Insecure note, this creates a default user, username: admin/admin)
 RUN /start.sh \
  && /home/lava/bin/createsuperuser.sh \
