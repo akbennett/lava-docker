@@ -35,13 +35,6 @@ RUN echo 'lava-server   lava-server/instance-name string lava-docker-instance' |
  && /stop.sh \
  && rm -rf /var/lib/apt/lists/*
 
-# Add some job submission utilities
-COPY submittestjob.sh /home/lava/bin/
-COPY *.json *.py *.yaml /home/lava/bin/
-
-# Add misc utilities
-COPY createsuperuser.sh add-kvm-to-lava.sh getAPItoken.sh lava-credentials.txt /home/lava/bin/
-
 # (Optional) Add lava user SSH key and/or configuration
 # or mount a host file as a data volume (read-only)
 # e.g. -v /path/to/id_rsa_lava.pub:/home/lava/.ssh/authorized_keys:ro
@@ -63,7 +56,8 @@ COPY submittestjob.sh /home/lava/bin/
 COPY *.json *.py *.yaml /home/lava/bin/
 
 # Add misc utilities
-COPY createsuperuser.sh add-kvm-to-lava.sh getAPItoken.sh lava-credentials.txt /home/lava/bin/
+COPY createsuperuser.sh add-devices-to-lava.sh getAPItoken.sh lava-credentials.txt /home/lava/bin/
+COPY qemu-cortex-m3-01.jinja2 /etc/dispatcher-config/devices/
 
 # (Optional) Add lava user SSH key and/or configuration
 # or mount a host file as a data volume (read-only)
@@ -76,25 +70,6 @@ COPY createsuperuser.sh add-kvm-to-lava.sh getAPItoken.sh lava-credentials.txt /
 # Create a admin user (Insecure note, this creates a default user, username: admin/admin)
 RUN /start.sh \
  && /home/lava/bin/createsuperuser.sh \
- && /stop.sh
-
-# Add devices to the server (ugly, but it works)
-RUN /start.sh \
- && lava-server manage pipeline-worker --hostname lava-docker \
- && echo "lava-docker" > /home/lava/bin/hostname.txt \
- && /home/lava/bin/add-kvm-to-lava.sh \
- && /usr/share/lava-server/add_device.py kvm kvm01 \
- && /usr/share/lava-server/add_device.py qemu-aarch64 qemu-aarch64-01 \
- && echo "root_part=1" >> /etc/lava-dispatcher/devices/kvm01.conf \
- && /stop.sh
-
-# Add a Pipeline device
-RUN /start.sh \
- && mkdir -p /etc/dispatcher-config/devices \
- && cp -a /usr/lib/python2.7/dist-packages/lava_scheduler_app/tests/devices/qemu01.jinja2 /etc/dispatcher-config/devices/ \
- && echo "{% set arch = 'amd64' %}">> /etc/dispatcher-config/devices/qemu01.jinja2 \
- && echo "{% set base_guest_fs_size = 2048 %}" >> /etc/dispatcher-config/devices/qemu01.jinja2 \
- && lava-server manage device-dictionary --hostname qemu01 --import /etc/dispatcher-config/devices/qemu01.jinja2 \
  && /stop.sh
 
 # CORTEX-M3: add python-sphinx-bootstrap-theme
@@ -118,13 +93,6 @@ RUN /start.sh \
  && echo "CORTEX-M3: Installing patched versions of dispatcher & server" \
  && cd /home/lava/lava-dispatcher && /home/lava/lava-server/share/debian-dev-build.sh -p lava-dispatcher \
  && cd /home/lava/lava-server && /home/lava/lava-server/share/debian-dev-build.sh -p lava-server \
- && /stop.sh
-
-# CORTEX-M3: add a qemu-cortex-m3 Pipeline device
-COPY qemu-cortex-m3-01.jinja2 /etc/dispatcher-config/devices/
-RUN /start.sh \
- && lava-server manage device-dictionary --hostname qemu-cortex-m3-01 \
-       --import /etc/dispatcher-config/devices/qemu-cortex-m3-01.jinja2 \
  && /stop.sh
 
 # To run jobs using python XMLRPC, we need the API token (really ugly)
