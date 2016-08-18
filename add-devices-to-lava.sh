@@ -10,7 +10,7 @@ fi
 
 lavaurl=http://localhost
 tools_path="${tools_path:-/home/lava/bin}"
-hostn=$(cat ${tools_path}/hostname.txt)
+hostn=$(hostname)
 
 #obtain the csrf token
 data=$(curl -s -c ${tools_path}/cookies.txt $lavaurl/accounts/login/); tail ${tools_path}/cookies.txt
