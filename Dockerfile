@@ -104,6 +104,6 @@ RUN /start.sh \
  && /stop.sh
 
 EXPOSE 22 80
-CMD /start.sh && bash
+CMD /start.sh && /home/lava/bin/add-devices-to-lava.sh 41 && bash
 # Following CMD option starts the lava container without a shell and exposes the logs
 #CMD /start.sh && tail -f /var/log/lava-*/*

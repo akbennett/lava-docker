@@ -30,3 +30,5 @@ echo -e "# LAVA ADMIN USER = $adminuser"
 echo -e "# LAVA ADMIN PASSWD = $adminpass"
 echo -n "# LAVA APIKEY =$(cat ${tools_path}/apikey.txt)"
 echo -e "\n\n#####################################\n"
+
+cp ${tools_path}/apikey.txt /var/lib/lava/dispatcher/tmp/
