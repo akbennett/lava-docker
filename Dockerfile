@@ -1,5 +1,8 @@
 FROM debian:jessie-backports
 
+MAINTAINER Alan Bennett <alan.bennett@linaro.org>
+LABEL Version="1.0" Description="lava running in docker and minimally configured"
+
 # Add services helper utilities to start and stop LAVA
 COPY stop.sh .
 COPY start.sh .
