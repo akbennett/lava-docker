@@ -25,8 +25,8 @@ mkdir -p /etc/dispatcher-config/devices
 COUNTER=1
 
 while [ $COUNTER -lt $1 ]; do
-	devicename=qemu-cortex-m3-$COUNTER
-	devicetype=qemu-cortex-m3
+	devicename=qemu-$COUNTER
+	devicetype=qemu
 	# Add device type
 	csrf="csrfmiddlewaretoken="$(cat  ${tools_path}/cookies.txt | grep csrftoken | cut -d$'\t' -f 7)
 	createdevicetype=$csrf\&name=$devicetype\&display=on\&health_frequency=24\&_save=Save\&health_denominator=0
@@ -36,6 +36,6 @@ while [ $COUNTER -lt $1 ]; do
 	createdevice=$csrf\&hostname=$devicename\&device_type=$devicetype\&device_version=1\&status=1\&health_status=0\&is_pipeline="on"\&worker_host=$hostn
 
 	curl -b ${tools_path}/cookies.txt -c ${tools_path}/cookies.txt -d $createdevice -X POST $lavaurl/admin/lava_scheduler_app/device/add/
-	lava-server manage device-dictionary --hostname qemu-cortex-m3-$COUNTER --import /etc/dispatcher-config/devices/qemu-cortex-m3-01.jinja2
+	lava-server manage device-dictionary --hostname qemu-$COUNTER --import /etc/dispatcher-config/devices/qemu.jinja2
 	let COUNTER=COUNTER+1
 done
