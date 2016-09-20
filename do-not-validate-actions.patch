@@ -1,0 +1,29 @@
+diff --git a/lava_scheduler_app/dbutils.py b/lava_scheduler_app/dbutils.py
+index bdbed46..e8338cf 100644
+--- a/lava_scheduler_app/dbutils.py
++++ b/lava_scheduler_app/dbutils.py
+@@ -803,14 +803,6 @@ def select_device(job, dispatchers):  # pylint: disable=too-many-return-statemen
+             logger.error('[%d] parser error: %s', check_job.id, exc)
+             fail_job(check_job, fail_msg=exc)
+             return None
+-        try:
+-            logger.info("[%d] Validating actions", check_job.id)
+-            pipeline_job.pipeline.validate_actions()
+-        except (AttributeError, JobError, KeyError, TypeError, RuntimeError) as exc:
+-            exc = format_exc(exc)
+-            logger.error({device: exc})
+-            fail_job(check_job, fail_msg=exc)
+-            return None
+         if pipeline_job:
+             pipeline = pipeline_job.describe()
+             # write the pipeline description to the job output directory.
+@@ -819,8 +811,6 @@ def select_device(job, dispatchers):  # pylint: disable=too-many-return-statemen
+             pipeline_dump = yaml.dump(pipeline)
+             with open(os.path.join(check_job.output_dir, 'description.yaml'), 'w') as describe_yaml:
+                 describe_yaml.write(pipeline_dump)
+-            if not map_metadata(pipeline_dump, check_job):
+-                logger.warning("[%d] unable to map metadata", check_job.id)
+             # add the compatibility result from the master to the definition for comparison on the slave.
+             if 'compatibility' in pipeline:
+                 try:
+

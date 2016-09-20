@@ -28,6 +28,7 @@ curl -b ${tools_path}/cookies.txt http://localhost/admin/linaro_django_xmlrpc/au
 echo -e "\n\n#####################################\n"
 echo -e "# LAVA ADMIN USER = $adminuser"
 echo -e "# LAVA ADMIN PASSWD = $adminpass"
-echo -e "# LAVA SLAVE HOSTNAME =$(cat ${tools_path}/hostname.txt)"
 echo -n "# LAVA APIKEY =$(cat ${tools_path}/apikey.txt)"
 echo -e "\n\n#####################################\n"
+
+cp ${tools_path}/apikey.txt /var/lib/lava/dispatcher/tmp/
