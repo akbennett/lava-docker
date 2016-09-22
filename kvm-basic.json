@@ -12,6 +12,6 @@
     ],
     "job_name": "kvm-sample-job boot-only",
     "logging_level": "INFO",
-    "target": "kvm01",
+    "device_type": "kvm",
     "timeout": 900
 }
