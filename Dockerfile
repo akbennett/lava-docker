@@ -34,6 +34,7 @@ RUN echo 'lava-server   lava-server/instance-name string lava-docker-instance' |
  python-sphinx \
  qemu-system-arm \
  qemu-system-x86 \
+ && a2enmod proxy proxy_http \
  && a2dissite 000-default \
  && a2ensite lava-server \
  && /stop.sh \
