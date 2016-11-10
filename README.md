@@ -7,7 +7,7 @@ Note: At this time, running LAVA in Docker is not formally supported by Linaro o
 It may be desired to edit the Dockerfile. This requires locally rebuilding the Docker Image. To build an image locally, execute the following from the directory you cloned the repo:
 
 ```
-sudo docker build -t lavadev .
+sudo docker build --pull -t lavadev .
 ```
 Where `lavadev` is the Docker image name and can be chosen at the time of build.
 
