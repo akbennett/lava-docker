@@ -31,7 +31,9 @@ RUN echo 'lava-server   lava-server/instance-name string lava-docker-instance' |
  && service postgresql start \
  && DEBIAN_FRONTEND=noninteractive apt-get install -y -t jessie-backports \
  lava \
- qemu-system \
+ python-sphinx \
+ qemu-system-arm \
+ qemu-system-x86 \
  && a2dissite 000-default \
  && a2ensite lava-server \
  && /stop.sh \
@@ -39,7 +41,13 @@ RUN echo 'lava-server   lava-server/instance-name string lava-docker-instance' |
 
 ## This is an optional step to install the latest LAVA code
 # add some dependencies to support installing latest lava code
-RUN sudo apt-get update && apt-get install -y python-sphinx-bootstrap-theme node-uglify docbook-xsl xsltproc python-mock \
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -y \
+ docbook-xsl \
+ gunicorn \
+ python-mock \
+ python-sphinx-bootstrap-theme node-uglify \
+ xsltproc \
  && rm -rf /var/lib/apt/lists/*
 
 ## This is an optional step to install the latest LAVA code
